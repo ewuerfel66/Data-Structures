@@ -129,7 +129,7 @@ class DoublyLinkedList:
             node.delete()
 
         elif node is self.tail:
-            self.tail.prev = self.tail
+            self.tail = self.tail.prev
             node.delete()
 
         else:
