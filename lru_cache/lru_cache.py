@@ -1,3 +1,6 @@
+from dll_queue import Queue
+from doubly_linked_list import DoublyLinkedList
+
 class LRUCache:
     """
     Our LRUCache class keeps track of the max number of nodes it
@@ -7,7 +10,17 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        pass
+        self.size = 0
+        self.limit = limit
+        self.storage = Queue()
+        self.cache = {}
+
+
+    def __init__(self, limit=10):
+        self.size = 0
+        self.limit = limit
+        self.storage = DoublyLinkedList()
+        self.cache = {}
 
     """
     Retrieves the value associated with the given key. Also
@@ -17,7 +30,13 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
+        # Update value
+        value = self.cache[key]
+        dll_entry = {key: value}
+        node = self.storage.find_node(dll_entry)
+        self.storage.move_to_front(node_to_move)
+        return node.value
+
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -29,5 +48,31 @@ class LRUCache:
     want to overwrite the old value associated with the key with
     the newly-specified value.
     """
+    # DLL
     def set(self, key, value):
-        pass
+        if self.size < self.limit:
+            # add length
+            self.size += 1
+            # add to cache and storage
+            self.cache[key] = value
+            self.storage.add_to_head({key: value})
+            self.storage.move_to_front({key: value})
+
+        elif key in self.cache:
+            # update value
+            self.cache[key] = value
+
+            # Move to front of DLL
+            dll_entry = {key: value}
+            node_to_move = self.storage.find_node(dll_entry)
+            self.storage.move_to_front(node_to_move)
+
+
+        else:
+            # Remove last one
+            self.cache.pop(key)
+            self.storage.remove_from_tail()
+
+            # add to cache and storage
+            self.cache[key] = value
+            self.storage.add_to_head({key: value})

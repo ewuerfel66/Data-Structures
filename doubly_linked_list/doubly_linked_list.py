@@ -150,3 +150,10 @@ class DoublyLinkedList:
             current = current.next
         
         return max_val
+
+    def find_node(self, value):
+        current = self.head
+
+        while current is not None:
+            if current.value == value:
+                return current
