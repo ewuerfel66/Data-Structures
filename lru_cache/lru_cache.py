@@ -1,5 +1,4 @@
-from dll_queue import Queue
-from doubly_linked_list import DoublyLinkedList
+from doubly_linked_list import DoublyLinkedList, ListNode
 
 class LRUCache:
     """
@@ -9,13 +8,6 @@ class LRUCache:
     order, as well as a storage dict that provides fast access
     to every node stored in the cache.
     """
-    def __init__(self, limit=10):
-        self.size = 0
-        self.limit = limit
-        self.storage = Queue()
-        self.cache = {}
-
-
     def __init__(self, limit=10):
         self.size = 0
         self.limit = limit
@@ -30,12 +22,24 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        # Update value
-        value = self.cache[key]
-        dll_entry = {key: value}
-        node = self.storage.find_node(dll_entry)
-        self.storage.move_to_front(node_to_move)
-        return node.value
+        # Check if key is in cache
+        if key in self.cache.keys():
+            cur = self.storage.head
+
+            # Find the node
+            while cur is not None:
+                if list(cur.value.keys())[0] == key:
+                    break
+                else:
+                    cur = cur.next
+
+            # Move
+            self.storage.move_to_front(cur)
+
+            return cur.value
+
+        else:
+            return None
 
 
     """
@@ -50,27 +54,32 @@ class LRUCache:
     """
     # DLL
     def set(self, key, value):
-        if self.size < self.limit:
+        if key in self.cache:
+            # update value
+            self.cache[key] = value
+
+            # Move to front of DLL
+            cur = self.storage.head
+            while cur is not None:
+                if cur.value == {key, value}:
+                    break
+                else:
+                    cur = cur.next
+            
+            self.storage.move_to_front(cur)
+
+        elif self.size < self.limit:
             # add length
             self.size += 1
             # add to cache and storage
             self.cache[key] = value
             self.storage.add_to_head({key: value})
-            self.storage.move_to_front({key: value})
-
-        elif key in self.cache:
-            # update value
-            self.cache[key] = value
-
-            # Move to front of DLL
-            dll_entry = {key: value}
-            node_to_move = self.storage.find_node(dll_entry)
-            self.storage.move_to_front(node_to_move)
-
 
         else:
+            key_to_remove = self.storage.tail.key
+
             # Remove last one
-            self.cache.pop(key)
+            self.cache.pop(key_to_remove)
             self.storage.remove_from_tail()
 
             # add to cache and storage
