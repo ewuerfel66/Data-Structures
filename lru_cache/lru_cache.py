@@ -1,4 +1,4 @@
-from doubly_linked_list import DoublyLinkedList, ListNode
+from doubly_linked_list import DoublyLinkedList
 
 class LRUCache:
     """
@@ -11,8 +11,9 @@ class LRUCache:
     def __init__(self, limit=10):
         self.size = 0
         self.limit = limit
-        self.storage = DoublyLinkedList()
-        self.cache = {}
+        self.order = DoublyLinkedList()
+        self.storage = dict()
+        
 
     """
     Retrieves the value associated with the given key. Also
@@ -22,25 +23,13 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        # Check if key is in cache
-        if key in self.cache.keys():
-            cur = self.storage.head
-
-            # Find the node
-            while cur is not None:
-                if list(cur.value.keys())[0] == key:
-                    break
-                else:
-                    cur = cur.next
-
-            # Move
-            self.storage.move_to_front(cur)
-
-            return cur.value
+        if key in self.storage:
+            node = self.storage[key]
+            self.order.move_to_end(node)
+            return node.value[1]
 
         else:
             return None
-
 
     """
     Adds the given key-value pair to the cache. The newly-
@@ -52,36 +41,24 @@ class LRUCache:
     want to overwrite the old value associated with the key with
     the newly-specified value.
     """
-    # DLL
     def set(self, key, value):
-        if key in self.cache:
-            # update value
-            self.cache[key] = value
+        
+        # Check length, if at limit remove LRU node
+        if key in self.storage:
+            node = self.storage[key]
+            node.value = (key, value)
+            self.order.move_to_end(node)
+            return
 
-            # Move to front of DLL
-            cur = self.storage.head
-            while cur is not None:
-                if cur.value == {key, value}:
-                    break
-                else:
-                    cur = cur.next
-            
-            self.storage.move_to_front(cur)
+        # Check if key in cache
 
-        elif self.size < self.limit:
-            # add length
-            self.size += 1
-            # add to cache and storage
-            self.cache[key] = value
-            self.storage.add_to_head({key: value})
+        # If it is, move to front & update value
+        if self.size == self.limit:
+            del self.storage[self.order.head.value[0]]
+            self.order.remove_from_head()
+            self.size -= 1
 
-        else:
-            key_to_remove = self.storage.tail.key
-
-            # Remove last one
-            self.cache.pop(key_to_remove)
-            self.storage.remove_from_tail()
-
-            # add to cache and storage
-            self.cache[key] = value
-            self.storage.add_to_head({key: value})
+        # If not, add to front
+        self.order.add_to_tail((key, value))
+        self.storage[key] = self.order.tail
+        self.size += 1
