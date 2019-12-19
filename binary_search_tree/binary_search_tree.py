@@ -15,12 +15,22 @@ class BinarySearchTree:
         # Insertion requires a tree to already exist
         # if value less than self.value go left, new tree/node if empty,
         # otherwise keep going
+        if value < self.value:
+            # Create a new tree if necessary
+            if self.left == None:
+                self.left = BinarySearchTree(value)
+
+            else:
+                self.left.insert(value)
 
         # If greater than or equal go to right
         # make new tree/node if empty otherwise
         # keep going (recursion)
-
-        pass
+        if value >= self.value:
+            if self.right == None:
+                self.right = BinarySearchTree(value)
+            else:
+                self.right.insert(value)
 
     # Return True if the tree contains the value
     # False if it does not
